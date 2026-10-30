@@ -1,0 +1,6 @@
+{
+  "name": "DevVault - Developer Productivity Workspace",
+  "description": "All-in-one browser-based developer workspace featuring code vault, playgrounds, JSON formatter, regex tester, diff checker, color studio, text tools, notes, and task manager.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

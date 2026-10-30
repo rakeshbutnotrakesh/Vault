@@ -1,0 +1,33 @@
+{
+  "description": "Vault Developer Workspace - Direct GitHub Gist & Repository Export",
+  "public": false,
+  "files": {
+    "README.md": {
+      "content": "# Vault Developer Workspace\n\nExported directly from **Vault** (All-in-One Developer Workspace).\n\n## Repository Contents\n- `typescript-debounce.ts`: High-performance debounce utility\n- `rust-thread-pool.rs`: Safe concurrency worker pool with Arc and Mutex\n- `go-worker-pipeline.go`: Concurrent worker fan-out/fan-in pipeline\n- `python-binary-search.py`: Recursive logarithmic search algorithm\n- `sql-upsert-pattern.sql`: Idempotent PostgreSQL upsert pattern\n- `note-idempotency.md`: Distributed systems idempotency design guide\n- `note-git-cherry-pick.md`: Git hotfix and conflict resolution workflow\n- `tasks.json`: Active sprint tasks & engineering backlog\n\n## How to import to GitHub\n### Option 1: GitHub CLI (Instant Gist)\n```bash\ngh gist create --input vault-github-export.json\n```\n\n### Option 2: GitHub API\n```bash\ncurl -X POST -H \"Authorization: token YOUR_GITHUB_TOKEN\" \\\n  -H \"Accept: application/vnd.github.v3+json\" \\\n  https://api.github.com/gists \\\n  -d @vault-github-export.json\n```\n"
+    },
+    "typescript-debounce.ts": {
+      "content": "export function debounce<T extends (...args: any[]) => any>(\n  fn: T,\n  delayMs: number\n): (...args: Parameters<T>) => void {\n  let timerId: ReturnType<typeof setTimeout> | null = null;\n\n  return function (this: any, ...args: Parameters<T>) {\n    if (timerId !== null) {\n      clearTimeout(timerId);\n    }\n    timerId = setTimeout(() => {\n      fn.apply(this, args);\n      timerId = null;\n    }, delayMs);\n  };\n}\n"
+    },
+    "rust-thread-pool.rs": {
+      "content": "use std::sync::{mpsc, Arc, Mutex};\nuse std::thread;\n\npub struct ThreadPool {\n    workers: Vec<Worker>,\n    sender: Option<mpsc::Sender<Job>>,\n}\n\ntype Job = Box<dyn FnOnce() + Send + 'static>;\n\nstruct Worker {\n    id: usize,\n    thread: Option<thread::JoinHandle<()>>,\n}\n\nimpl ThreadPool {\n    pub fn new(size: usize) -> ThreadPool {\n        assert!(size > 0);\n        let (sender, receiver) = mpsc::channel();\n        let receiver = Arc::new(Mutex::new(receiver));\n        let mut workers = Vec::with_capacity(size);\n\n        for id in 0..size {\n            workers.push(Worker::new(id, Arc::clone(&receiver)));\n        }\n        ThreadPool { workers, sender: Some(sender) }\n    }\n}\n"
+    },
+    "go-worker-pipeline.go": {
+      "content": "package main\n\nimport (\n\t\"context\"\n\t\"fmt\"\n\t\"sync\"\n\t\"time\"\n)\n\nfunc worker(ctx context.Context, id int, jobs <-chan int, results chan<- string, wg *sync.WaitGroup) {\n\tdefer wg.Done()\n\tfor {\n\t\tselect {\n\t\tcase <-ctx.Done():\n\t\t\treturn\n\t\tcase j, ok := <-jobs:\n\t\t\tif !ok {\n\t\t\t\treturn\n\t\t\t}\n\t\t\ttime.Sleep(20 * time.Millisecond)\n\t\t\tresults <- fmt.Sprintf(\"worker %d processed job %d\", id, j)\n\t\t}\n\t}\n}\n"
+    },
+    "python-binary-search.py": {
+      "content": "def binary_search(arr: list[int], target: int) -> int:\n    low, high = 0, len(arr) - 1\n\n    while low <= high:\n        mid = (low + high) // 2\n        val = arr[mid]\n        if val == target:\n            return mid\n        elif val < target:\n            low = mid + 1\n        else:\n            high = mid - 1\n\n    return -1\n\nif __name__ == '__main__':\n    nums = [2, 5, 8, 12, 16, 23, 38, 56, 72, 91]\n    print(f\"Index of 23: {binary_search(nums, 23)}\")\n"
+    },
+    "sql-upsert-pattern.sql": {
+      "content": "INSERT INTO user_profiles (id, email, display_name, updated_at)\nVALUES ($1, $2, $3, NOW())\nON CONFLICT (email)\nDO UPDATE SET\n  display_name = EXCLUDED.display_name,\n  updated_at = NOW()\nRETURNING id, email, display_name, updated_at;\n"
+    },
+    "note-idempotency.md": {
+      "content": "# Idempotency Keys in Distributed APIs\n\nWhen designing POST operations that charge cards, submit orders, or mutate external states:\n\n### Core Requirements\n1. **Client-Generated Key**: UUID v4 header `Idempotency-Key: <uuid>`.\n2. **Atomic Lock**: Cache lock on key with TTL (e.g. 120 seconds) while processing.\n3. **Cached Response Payload**: Store the finalized HTTP status + response body for 24-48 hours.\n4. **Concurrent Re-entrant**: If another request arrives while lock is active, return `409 Conflict` or await completion.\n"
+    },
+    "note-git-cherry-pick.md": {
+      "content": "# Git Precision Hotfix Workflow\n\nTo pull a single production patch into staging without merging development branches:\n\n1. Locate commit hash in main: `git log --oneline -n 5`\n2. Checkout target staging branch: `git checkout staging && git pull`\n3. Apply specific commit: `git cherry-pick <commit-hash>`\n4. If conflicts occur: resolve files -> `git add <files>` -> `git cherry-pick --continue`\n5. Push to remote: `git push origin staging`\n"
+    },
+    "tasks.json": {
+      "content": "[\n  {\n    \"id\": \"task-1\",\n    \"title\": \"Refactor auth token refresh interceptor\",\n    \"status\": \"in-progress\",\n    \"priority\": \"high\",\n    \"project\": \"Auth Service\"\n  },\n  {\n    \"id\": \"task-2\",\n    \"title\": \"Add database index on created_at timestamp\",\n    \"status\": \"todo\",\n    \"priority\": \"urgent\",\n    \"project\": \"Database\"\n  }\n]\n"
+    }
+  }
+}
